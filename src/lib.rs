@@ -70,8 +70,14 @@ impl Agent {
         loop {
             let (tx, rx) = channel();
             interval.tick().await;
+            // TODO: Quit using Values, then use metrics::HostMetric.
             type F = Box<dyn Fn() -> Values + Send>;
-            let cpu_metric: F = Box::new(|| Self::get_cpu_metrics().unwrap());
+            let cpu_metric: F = Box::new(|| {
+                let metrics = Self::get_cpu_metrics().unwrap();
+                // This line is prepared for only solving type-puzzle...
+                // After when all metrics are done moving to src/metrics, these line will get useless.
+                Values(metrics.value)
+            });
             let disk_metric: F = Box::new(|| Self::get_disk_metrics().unwrap());
             let filesystem_metric: F = Box::new(Self::get_filesystem_metrics);
             let interfaces_metric: F = Box::new(|| Self::get_interfaces_metrics().unwrap());
@@ -118,10 +124,10 @@ impl Agent {
 pub mod config;
 pub mod host_meta;
 
-mod cpu;
 mod disk;
 mod filesystem;
 mod interface;
 mod loadavg;
 mod memory;
+mod metrics;
 mod util;
