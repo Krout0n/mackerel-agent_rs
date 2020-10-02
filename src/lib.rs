@@ -1,4 +1,4 @@
-use mackerel_client::{client::Client, metric};
+use mackerel_client::client::Client;
 use std::{
     collections::HashMap,
     sync::mpsc::{self, channel},
@@ -12,8 +12,8 @@ pub struct Values(HashMap<String, f64>);
 // &'a str expects host id.
 pub struct HostMetricWrapper<'a>(&'a str, Values);
 
-impl<'a> Into<Vec<metric::HostMetricValue>> for HostMetricWrapper<'a> {
-    fn into(self) -> Vec<metric::HostMetricValue> {
+impl<'a> Into<Vec<mackerel_client::metric::HostMetricValue>> for HostMetricWrapper<'a> {
+    fn into(self) -> Vec<mackerel_client::metric::HostMetricValue> {
         use std::time::SystemTime;
         let host_id = self.0;
         let value = self.1;
@@ -26,7 +26,7 @@ impl<'a> Into<Vec<metric::HostMetricValue>> for HostMetricWrapper<'a> {
             .into_iter()
             .map(|hmv| {
                 let (name, value) = hmv;
-                metric::HostMetricValue {
+                mackerel_client::metric::HostMetricValue {
                     host_id: host_id.to_owned(),
                     name,
                     value,
@@ -129,5 +129,5 @@ mod filesystem;
 mod interface;
 mod loadavg;
 mod memory;
-mod metrics;
+mod metric;
 mod util;
